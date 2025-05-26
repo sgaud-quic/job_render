@@ -167,20 +167,23 @@ class DataHandler:
     
     def put_tests_into_fetched_data(self, test_names, arg_parse_handler, test_data):
         logging.debug('put_tests_into_fetched_data called with test_names: %s', test_names)
+        logging.debug('put_tests_into_fetched_data called with test_data: %s', test_data)
         for test_name in test_names:
             # arg_name_original = test_name["name"]
-            arg_name = test_name["name"].replace('-', '_')
+            arg_name = test_name["name"].removesuffix(".yaml").replace('-', '_')
+            print("arg_name", arg_name)
             if arg_parse_handler.is_argname_passed(arg_name=arg_name):
-                logging.info(f"You have used '--{test_name['name']}' argument")
+                logging.info(f"You have used '--{arg_name}' argument")
                 print(f"You have used '--{test_name['name']}' argument")
                 # pushing tests into the data's tests list
-                specific_test_paths = filter_data(test_data,folder_name='/'+test_name['name']+'/', data_type='yaml')
+                specific_test_paths = filter_data(test_data,folder_name='/'+test_name['name'], data_type='yaml')
+                print("specific_test_paths",specific_test_paths)
                 for specific_test_path in specific_test_paths:
                     specific_test_name = self.extract_test_name(specific_test_path)
                     self.data.setdefault("tests", []).append({
-                        "repository": "https://github.com/qualcomm-linux/test-definitions.git",
+                        "repository": "https://github.com/qualcomm-linux/qcom-linux-testkit.git",
                         "from": "git",
-                        "path": f"{specific_test_path}",
+                        "path": f"Runner/plans{specific_test_path}",
                         "name": f"{specific_test_name}-tests"
                     })
                     self.tests_count+=1

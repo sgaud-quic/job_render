@@ -27,12 +27,12 @@ class ArgParseHandler:
             logging.debug('Parsed test names from test_data')
 
             for test_name in test_names:
-                arg_name = test_name["name"]
+                arg_name = test_name["name"].removesuffix(".yaml")
                 parser.add_argument('--' + arg_name, help=f'Example: {test_name["name"]} argument', action="store_true")
                 logging.debug(f'Added argument for test name: {arg_name}')
 
         self.argument = parser.parse_args()
-        logging.debug('Parsed command line arguments')
+        logging.debug('Parsed command line arguments') 
     
     def get_node_id(self):
         node_id = self.argument.node

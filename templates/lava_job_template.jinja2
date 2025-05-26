@@ -10,7 +10,7 @@ actions:
     {% for test in node.tests %}
     - repository: "{{test.repository}}"
       from: "{{test.from}}"
-      path: automated/linux{{test.path}}
+      path: {{test.path}}
       name: "{{test.name}}"
     {% endfor %}
 {% endif %}
