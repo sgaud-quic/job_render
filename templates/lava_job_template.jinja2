@@ -1,7 +1,12 @@
 actions:
 {% set boot_template = 'boot/' + platform_config.boot_method + '.jinja2' %}
 {% set boot_overlay_template = 'overlays/' + test_method + '.jinja2' %}
+{% if platform_config.boot_method == 'flash' %}
+{% include boot_template %}
+{% endif %}
+{% if platform_config.boot_method == 'fastboot' %}
 {% include boot_overlay_template %}
+{% endif %}
 {% if tests_count %}
 - test:
     timeout:
@@ -15,6 +20,11 @@ actions:
     {% endfor %}
 {% endif %}
 device_type: {{ platform_config.name }}
+device_type: {{ platform_config.name }}
+{% if platform_config.boot_method == 'flash' %}
+tags:
+ - meta-qcom
+{% endif %}
 job_name: "[{{ instanceid|default('AKS')}}] {{ node.id }} {{ node.name }} {{ node.data.kernel_revision.describe }}"
 priority: high
 timeouts:
@@ -24,7 +34,7 @@ timeouts:
     power-off:
       seconds: 30
   job:
-    minutes: 30
+    minutes: 150
   queue:
     days: 2
 visibility: public

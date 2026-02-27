@@ -4,7 +4,7 @@
 import sys
 
 # Allowed boot methods
-allowed_boot_methods = ['fastboot', 'u-boot']
+allowed_boot_methods = ['fastboot', 'u-boot', 'flash']
 
 
 class Validator:

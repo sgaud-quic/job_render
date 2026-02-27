@@ -1,0 +1,45 @@
+- deploy:
+    images:
+      image:
+        url: '{{ node.artifacts.meta }}'
+    postprocess:
+      docker:
+        image: ghcr.io/mwasilew/docker-mkbootimage:master
+        steps:
+        - export IMAGE_PATH=$PWD
+        - echo "DEVICE_TYPE=qcs6490-rb3gen2" >> $IMAGE_PATH/flash.settings
+        - echo "PORT=0" >> $IMAGE_PATH/flash.settings
+        - cat $IMAGE_PATH/flash.settings
+    timeout:
+     minutes: 60
+    to: downloads
+{% set image_url = node.artifacts.kernel %}
+{% set image_path = image_url.split('?')[0] %}
+{% set image_name = image_path.split('/')[-1] %}
+- deploy:
+    images:
+      image:
+        url: 'downloads://{{ image_name }}'
+      settings:
+        url: downloads://flash.settings
+    timeout:
+       minutes: 10
+    to: flasher
+- boot:
+    auto_login:
+      login_prompt: 'login:'
+      username: root
+      password_prompt: Password
+      password: oelinux123
+    prompts:
+    - root@{{ platform_config.name }}
+    - root@(.*):[/~]#
+    failure_retry: 3
+    timeout:
+      minutes: 10
+    timeouts:
+      bootloader-commands:
+        minutes: 3
+      auto-login-action:
+        minutes: 10
+    method: minimal
