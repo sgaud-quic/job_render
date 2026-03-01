@@ -13,13 +13,13 @@
     timeout:
      minutes: 60
     to: downloads
-{% set image_url = node.artifacts.kernel %}
-{% set image_path = image_url.split('?')[0] %}
-{% set image_name = image_path.split('/')[-1] %}
+{% set meta_url = node.artifacts.meta %}
+{% set meta_path = meta_url.split('?')[0] %}
+{% set meta_name = meta_path.split('/')[-1] %}
 - deploy:
     images:
       image:
-        url: 'downloads://{{ image_name }}'
+        url: 'downloads://{{ meta_name }}'
       settings:
         url: downloads://flash.settings
     timeout:
