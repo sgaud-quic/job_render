@@ -7,19 +7,19 @@
         image: ghcr.io/mwasilew/docker-mkbootimage:master
         steps:
         - export IMAGE_PATH=$PWD
-        - echo "DEVICE_TYPE=qcs6490-rb3gen2" >> $IMAGE_PATH/flash.settings
+        - echo "DEVICE_TYPE={{ platform_config.name }}" >> $IMAGE_PATH/flash.settings
         - echo "PORT=0" >> $IMAGE_PATH/flash.settings
         - cat $IMAGE_PATH/flash.settings
     timeout:
      minutes: 60
     to: downloads
-{% set image_url = node.artifacts.kernel %}
-{% set image_path = image_url.split('?')[0] %}
-{% set image_name = image_path.split('/')[-1] %}
+{% set meta_url = node.artifacts.meta %}
+{% set meta_path = meta_url.split('?')[0] %}
+{% set meta_name = meta_path.split('/')[-1] %}
 - deploy:
     images:
       image:
-        url: 'downloads://{{ image_name }}'
+        url: 'downloads://{{ meta_name }}'
       settings:
         url: downloads://flash.settings
     timeout:
