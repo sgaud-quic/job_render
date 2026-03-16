@@ -29,14 +29,18 @@
       docker:
         image: ghcr.io/mwasilew/docker-mkbootimage:master
         steps:
-        - gunzip -c {{ ramdisk_name }} > initramfs-kerneltest-full-image-qcom-armv8a.cpio
         {% if firmware_name %}
-        - gunzip -c {{ firmware_name }} > initramfs-firmware-rb3gen2-image-qcom-armv8a.cpio
-        - cat initramfs-kerneltest-full-image-qcom-armv8a.cpio initramfs-firmware-rb3gen2-image-qcom-armv8a.cpio > merged-initramfs.cpio
+        - rm -rf rootfs
+        - mkdir -p rootfs
+        - cd rootfs
+        - gzip -cd ../{{ ramdisk_name }} | cpio -idm --no-absolute-filenames
+        - gzip -cd ../{{ firmware_name }} | cpio -idm --no-absolute-filenames
+        - find . -print0 | cpio --null -H newc -o | gzip -9 > ../merged-initramfs.cpio.gz
+        - cd ..
         {% else %}
-        - cat initramfs-kerneltest-full-image-qcom-armv8a.cpio > merged-initramfs.cpio
+        # No firmware to merge: rename ramdisk as merged output (destructive)
+        - mv {{ ramdisk_name }} merged-initramfs.cpio.gz
         {% endif %}
-        - gzip merged-initramfs.cpio
         - mkbootimg --header_version 2 --kernel Image --dtb {{ dtb_name }} --cmdline "console=ttyMSM0,115200n8 earlycon qcom_geni_serial.con_enabled=1 kernel.sched_pelt_multiplier=4 mem_sleep_default=s2idle mitigations=auto video=efifb:off" --ramdisk merged-initramfs.cpio.gz --output boot.img
     to: downloads
 
