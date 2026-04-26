@@ -1,3 +1,4 @@
+{% if meta_qcom %}
 - deploy:
     images:
       image:
@@ -15,7 +16,7 @@
         - echo "PORT=0" >> $IMAGE_PATH/flash.settings
         - cat $IMAGE_PATH/flash.settings
     timeout:
-     minutes: 30
+      minutes: 30
     to: downloads
 {% set flash_image_url = node.artifacts.flash_image %}
 {% set flash_image_path = flash_image_url.split('?')[0] %}
@@ -29,7 +30,7 @@
       overlay:
         url: downloads://overlay.tar.gz
     timeout:
-       minutes: 10
+      minutes: 10
     to: flasher
 - boot:
     auto_login:
@@ -49,3 +50,80 @@
       auto-login-action:
         minutes: 10
     method: minimal
+{% else %}
+{%- set rootfs_url   = node.artifacts.flash_image -%}
+{%- set rootfs_path  = rootfs_url.split('?')[0] -%}
+{%- set rootfs_name  = rootfs_path.split('/')[-1] -%}
+{%- set ramdisk_url  = node.artifacts.ramdisk -%}
+{%- set ramdisk_path = ramdisk_url.split('?')[0] -%}
+{%- set ramdisk_name = ramdisk_path.split('/')[-1] -%}
+{%- set firmware_url  = node.artifacts.firmware -%}
+{%- set firmware_path = firmware_url.split('?')[0] -%}
+{%- set firmware_name = firmware_path.split('/')[-1] -%}
+{%- set dtb_path = node.artifacts.dtb.split('?')[0] -%}
+{%- set dtb_name = dtb_path.split('/')[-1] -%}
+- deploy:
+    timeout:
+      minutes: 40
+    to: downloads
+    images:
+      kernel:
+        url: '{{ node.artifacts.kernel }}'
+      dtb:
+        url: '{{ node.artifacts.dtb }}'
+      ramdisk:
+        url: '{{ ramdisk_url }}'
+        compression: gz
+        format: cpio.newc
+        overlays:
+          lava: true
+{% filter indent(width=10) %}
+{% block testoverlays %}{% endblock %}
+{% endfilter %}
+      ramdisk_firmware:
+        url: '{{ firmware_url }}'
+      rootfs_image:
+        url: '{{ rootfs_url }}'
+    postprocess:
+      docker:
+        image: ghcr.io/nandini-matam/kmake-image:v5
+        steps:
+        - gunzip -c {{ ramdisk_name }} > kerneltest.cpio
+        - gunzip -c {{ firmware_name }} > firmware.cpio
+        - cat kerneltest.cpio firmware.cpio > merged-initramfs.cpio
+        - gzip merged-initramfs.cpio
+        - generate_boot_bins.sh efi
+            --ramdisk merged-initramfs.cpio.gz
+            --systemd-boot /artifacts/systemd/usr/lib/systemd/boot/efi/systemd-bootaa64.efi
+            --stub /artifacts/systemd/usr/lib/systemd/boot/efi/linuxaa64.efi.stub
+            --linux Image
+            --cmdline "console=ttyMSM0,115200n8 earlycon qcom_geni_serial.con_enabled=1 kernel.sched_pelt_multiplier=4 mem_sleep_default=s2idle mitigations=auto video=efifb:off"
+            --output images
+        - generate_boot_bins.sh dtb --input {{ dtb_name }} --output images
+        - echo "EFI=images/efi.bin" >> flash.settings
+        - echo "DTB=images/dtb.bin" >> flash.settings
+        - echo "DEVICE_TYPE={{ platform_config.name }}" >> flash.settings
+        - echo "PORT={{ flash_port | default('0', true) }}" >> flash.settings
+        - cat flash.settings
+- deploy:
+    timeout:
+      minutes: 15
+    to: flasher
+    images:
+      image:
+        url: 'downloads://{{ rootfs_name }}'
+      settings:
+        url: downloads://flash.settings
+- boot:
+    method: minimal
+    failure_retry: 3
+    prompts:
+    - 'root@[^:]+:~# '
+    timeout:
+      minutes: 10
+    timeouts:
+      auto-login-action:
+        minutes: 5
+      bootloader-commands:
+        minutes: 5
+{% endif %}
