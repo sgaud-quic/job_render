@@ -37,7 +37,11 @@
         - cat initramfs-kerneltest-full-image-qcom-armv8a.cpio > merged-initramfs.cpio
         {% endif %}
         - gzip merged-initramfs.cpio
+        {% if 'x1e80100' in dtb_name %}
+        - mkbootimg --header_version 2 --kernel Image --dtb {{ dtb_name }} --cmdline "console=ttyMSM0,115200n8 earlycon qcom_geni_serial.con_enabled=1 kernel.sched_pelt_multiplier=4 mem_sleep_default=s2idle mitigations=auto video=efifb:off root=/dev/ram rw rootwait" --ramdisk merged-initramfs.cpio.gz --output boot.img
+        {% else %}
         - mkbootimg --header_version 2 --kernel Image --dtb {{ dtb_name }} --cmdline "console=ttyMSM0,115200n8 earlycon qcom_geni_serial.con_enabled=1 kernel.sched_pelt_multiplier=4 mem_sleep_default=s2idle mitigations=auto video=efifb:off" --ramdisk merged-initramfs.cpio.gz --output boot.img
+        {% endif %}
     to: downloads
 
 - deploy:
