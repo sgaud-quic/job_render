@@ -2,10 +2,14 @@ actions:
 {% set boot_template = 'boot/' + platform_config.boot_method + '.jinja2' %}
 {% set boot_overlay_template = 'overlays/' + test_method + '.jinja2' %}
 {% include boot_overlay_template %}
-{% if tests_count %}
+{% if tests_count or node.tests %}
 - test:
     timeout:
+{% if meta_qcom %}
+      minutes: 240
+{% else %}
       minutes: 20
+{% endif %}
     definitions:
     {% for test in node.tests %}
     - repository: "{{test.repository}}"
@@ -24,8 +28,11 @@ timeouts:
     power-off:
       seconds: 30
   job:
+{% if meta_qcom %}
+    minutes: 295
+{% else %}
     minutes: 30
+{% endif %}
   queue:
     days: 2
 visibility: public
-

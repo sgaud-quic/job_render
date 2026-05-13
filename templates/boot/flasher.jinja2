@@ -29,7 +29,7 @@
       overlay:
         url: downloads://overlay.tar.gz
     timeout:
-       minutes: 10
+       minutes: 40
     to: flasher
 - boot:
     auto_login:
@@ -40,12 +40,18 @@
     prompts:
     - root@{{ platform_config.name }}
     - root@(.*):[/~]#
+{% if not meta_qcom %}
     failure_retry: 3
+{% endif %}
     timeout:
+{% if meta_qcom %}
+      minutes: 15
+{% else %}
       minutes: 10
     timeouts:
       bootloader-commands:
         minutes: 3
       auto-login-action:
         minutes: 10
+{% endif %}
     method: minimal
