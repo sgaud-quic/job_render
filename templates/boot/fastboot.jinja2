@@ -27,7 +27,7 @@
 {% set ramdisk_name = ramdisk_path.split('/')[-1] %}
     postprocess:
       docker:
-        image: ghcr.io/mwasilew/docker-mkbootimage:master
+        image: artifacts.codelinaro.org/clo-420-qli-registry/kmake-image-ci:ver.1.0
         steps:
         - gunzip -c {{ ramdisk_name }} > initramfs-kerneltest-full-image-qcom-armv8a.cpio
         {% if firmware_name %}

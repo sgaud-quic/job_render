@@ -38,7 +38,7 @@
 {% endif %}
     postprocess:
       docker:
-        image: <TODO>
+        image: artifacts.codelinaro.org/clo-420-qli-registry/kmake-image-ci:ver.1.0
         steps:
 {%- if node.data.kernel_type.endswith('.gz') %}
         - gunzip Image.gz
