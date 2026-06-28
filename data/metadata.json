@@ -21,6 +21,8 @@
         "dtbs/qcom/qcs615-ride.dtb": "",
         "dtbs/qcom/kaanapali-mtp.dtb": "",
         "dtbs/qcom/x1e80100-crd.dtb": "",
-        "dtbs/qcom/glymur-crd.dtb": ""
+        "dtbs/qcom/glymur-crd.dtb": "",
+        "dtbs/qcom/qrb2210-rb1.dtb": "",
+        "dtbs/qcom/hamoa-iot-evk.dtb": ""
     }
 }
