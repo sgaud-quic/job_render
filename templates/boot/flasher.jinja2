@@ -2,12 +2,20 @@
     images:
       image:
         url: '{{ node.artifacts.flash_image }}'
+      test:
+        headers:
+          Authorization: LAVA_BASIC_AUTH
+        url: 'https://storage-lava-hyd.qualcomm.com/Lava_binaries.tar.gz'
     postprocess:
       docker:
         image: ghcr.io/mwasilew/docker-mkbootimage:master
         steps:
         - export IMAGE_PATH=$PWD
         - cp overlay*.tar.gz overlay.tar.gz
+        - mkdir overlay_root
+        - tar -xzvf overlay.tar.gz -C overlay_root
+        - tar -xzvf Lava_binaries.tar.gz -C overlay_root 
+        - tar -cvzf overlay.tar.gz -C overlay_root .
         - echo "OVERLAY=overlay.tar.gz" >> $IMAGE_PATH/flash.settings
         - echo "OVERLAY_PATH=/" >> $IMAGE_PATH/flash.settings
         - echo "ROOTFS_IMAGE=rootfs.img" >> $IMAGE_PATH/flash.settings

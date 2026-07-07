@@ -1,6 +1,8 @@
 [
   {"type":"directory","name":".","contents":[
     {"type":"file","name":"qcom-next-ci-premerge.yaml"},
+    {"type":"file","name":"meta-qcom-nightly_config1.yaml"},
+    {"type":"file","name":"meta-qcom-nightly_config2.yaml"},
     {"type":"file","name":"meta-qcom_PreMerge.yaml"},
     {"type":"file","name":"fastrpc-premerge.yaml"},
     {"type":"file","name":"video_pre-merge.yaml"},
