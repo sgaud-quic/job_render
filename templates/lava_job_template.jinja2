@@ -5,7 +5,7 @@ actions:
 {% if tests_count %}
 - test:
     timeout:
-      minutes: 20
+      minutes: 40
     definitions:
     {% for test in node.tests %}
     - repository: "{{test.repository}}"
@@ -24,7 +24,7 @@ timeouts:
     power-off:
       seconds: 30
   job:
-    minutes: 30
+    minutes: 50
   queue:
     days: 2
 visibility: public
