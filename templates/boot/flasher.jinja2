@@ -1,6 +1,10 @@
 - deploy:
     images:
       image:
+{% if node.artifacts.flash_image and node.artifacts.flash_image.startswith('https://qli-prod-artifacts.qualcomm.com/qli-prd-kernel-gh-artifacts/') %}
+        headers:
+          QLIAuthorization: QLI_S3_TOKEN
+{% endif %}
         url: '{{ node.artifacts.flash_image }}'
       test:
         headers:
